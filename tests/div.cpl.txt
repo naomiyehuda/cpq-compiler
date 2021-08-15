@@ -1,0 +1,19 @@
+main Divide 
+
+
+    var count, first: int;
+        second: int;
+
+start
+     read (first);
+     read (second);
+     count := 0;
+    
+     while (first >= second) {
+       first := first-second;
+       count := count+1;
+     }
+    
+     print (count);
+trats
+
