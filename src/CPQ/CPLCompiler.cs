@@ -1,12 +1,11 @@
 ﻿using Antlr4.Runtime;
-using System.IO;
 
 namespace CPQ
 {
     class CPLCompiler
     {
-        private string directory;
-        private string fileName;
+        private readonly string directory;
+        private readonly string fileName;
 
         public CPLCompiler(string directory, string fileName)
         {
@@ -16,11 +15,6 @@ namespace CPQ
 
         internal void Compile(string input)
         {
-            Parse(input);
-        }
-
-        private void Parse(string input)
-        {
             var parser = GetParser(input);
             var parserContext = parser.Parse();
 
@@ -29,11 +23,8 @@ namespace CPQ
                 // Translate code to QUAD language
                 parserContext.Accept(new CPLVisitor(directory, fileName));
             }
-            else
-            {
-                string fullPath = Path.Combine(directory, fileName + Constants.ERROR_EXTENSION);
-                parser.WriteErrors(fullPath);
-            }
+
+            System.Console.ForegroundColor = System.ConsoleColor.White;
         }
 
         private AstParser GetParser(string input)

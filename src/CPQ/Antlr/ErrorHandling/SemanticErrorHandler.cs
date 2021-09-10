@@ -1,27 +1,26 @@
-﻿using System.IO;
-using System.Text;
-
-namespace CPQ
+﻿namespace CPQ
 {
     class SemanticErrorHandler
     {
-        readonly StringBuilder errorTracing = new StringBuilder();
+        int numOfSemanticError = 0;
 
-        // Called by Antlr in case of error
-        public void SemanticError(int line, string msg)
+        public SemanticErrorHandler()
         {
-            errorTracing.AppendFormat("line {0}: {1}", line, msg);
-            errorTracing.AppendLine();
+            System.Console.ForegroundColor = System.ConsoleColor.Red;
         }
 
-        public void WriteErrors(string filePath)
+        public void EmitSemanticError(int line, string msg)
         {
-            if (errorTracing.Length > 0)
-                using (var streamWriter = new StreamWriter(filePath))
-                {
-                    streamWriter.Write(errorTracing);
-                    streamWriter.Flush();
-                }
+            numOfSemanticError++;
+            System.Console.WriteLine("line {0}: {1}", line, msg);
+        }
+
+        public bool HasSemanticErrors
+        {
+            get
+            {
+                return numOfSemanticError > 0;
+            }
         }
     }
 }

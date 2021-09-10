@@ -1,0 +1,39 @@
+i,j:int;
+i:int;
+a, b : float;
+{
+if (!(a > 5) || !(b < 10))
+{
+output (i);
+if (j > 5)
+{
+output (1111);
+output (22222);
+output (2.3);
+}
+else
+if (j < 4)
+{
+output (333);
+while(b < 6)
+{
+output (123);
+if(b > 3)
+{
+output(a);
+}
+else
+{
+output(222);
+}
+break;
+output (b);
+output (1212);
+}
+}
+else
+output (2.5);
+}
+else
+output (j);
+}

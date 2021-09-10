@@ -22,8 +22,9 @@ namespace CPQ
         public override object VisitProgram(ProgramContext context)
         {
             base.VisitProgram(context);
-            EmitOutputCode();
-            EmitErrors();
+
+            if(!semanticErrorHandler.HasSemanticErrors)
+                EmitOutputCode();
 
             return null;
         }

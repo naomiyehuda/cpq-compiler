@@ -60,12 +60,6 @@ namespace CPQ
             inversedRelOps.Add("&&", "||");
         }
 
-        private void EmitErrors()
-        {
-            string errorFilePath = filePath + Constants.ERROR_EXTENSION;
-            semanticErrorHandler.WriteErrors(errorFilePath);
-        }
-
         private void AddVarToSymbolTbl(IdlistContext context)
         {
             var var = context.ID().GetText();
@@ -73,7 +67,7 @@ namespace CPQ
             var isSucceedToAdd = AddVarToSymTbl(var, type);
             if (!isSucceedToAdd)
             {
-                semanticErrorHandler.SemanticError(context.Start.Line, string.Format("Variable '{0}' already declared", var));
+                semanticErrorHandler.EmitSemanticError(context.Start.Line, string.Format("Variable '{0}' already declared", var));
             }
         }
 
@@ -99,7 +93,7 @@ namespace CPQ
             var var = context.ID().GetText();
             if (!TryGetVariable(var, out IType type))
             {
-                semanticErrorHandler.SemanticError(context.Start.Line, string.Format("Variable '{0}' does not exist", var));
+                semanticErrorHandler.EmitSemanticError(context.Start.Line, string.Format("Variable '{0}' does not exist", var));
             }
             else
                 AddCodeLine(type.EmitINP(var));
@@ -116,14 +110,14 @@ namespace CPQ
             var left = context.ID().GetText();
             if (!TryGetVariable(left, out IType leftType))
             {
-                semanticErrorHandler.SemanticError(context.Start.Line, string.Format("Variable '{0}' does not exist", left));
+                semanticErrorHandler.EmitSemanticError(context.Start.Line, string.Format("Variable '{0}' does not exist", left));
             }
             else
             {
                 var right = expressions.Pop();
                 if (leftType.GetType() == typeof(IntType) && right.Value.GetType() == typeof(FloatType))
                 {
-                    semanticErrorHandler.SemanticError(context.Start.Line, "Cannot implicitly convert 'float' to 'int'");
+                    semanticErrorHandler.EmitSemanticError(context.Start.Line, "Cannot implicitly convert 'float' to 'int'");
                 }
                 else
                 {
@@ -150,7 +144,7 @@ namespace CPQ
             var var = context.ID().GetText();
             if (!TryGetVariable(var, out IType type))
             {
-                semanticErrorHandler.SemanticError(context.Start.Line, string.Format("Variable '{0}' does not exist", var));
+                semanticErrorHandler.EmitSemanticError(context.Start.Line, string.Format("Variable '{0}' does not exist", var));
             }
             else
             {

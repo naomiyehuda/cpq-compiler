@@ -1,5 +1,4 @@
-﻿using System.IO;
-using static CPQ.CPLParser;
+﻿using static CPQ.CPLParser;
 
 namespace CPQ
 {
@@ -23,11 +22,6 @@ namespace CPQ
         public int NumberOfSyntaxErrors
         {
             get { return parser.NumberOfSyntaxErrors; }
-        }
-
-        public void WriteErrors(string filePath)
-        {
-            errorListener.WriteErrors(filePath);
         }
     }
 }
