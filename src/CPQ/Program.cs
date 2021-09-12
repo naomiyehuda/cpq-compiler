@@ -10,15 +10,18 @@ namespace CPQ
 
         static void Main(string[] args)
         { 
-            if(IsValidateArguments(args))
+            if(IsValidArgs(args))
             {
+                // Delete quad file if already exists
+                DeleteOutputFile();
+
                 // Compile CPL input file
                 var compiler = new CPLCompiler(directory, fileName);
                 compiler.Compile(File.ReadAllText(filePath));
             }
         }
 
-        private static bool IsValidateArguments(string[] args)
+        private static bool IsValidArgs(string[] args)
         {
             try
             {
@@ -60,6 +63,11 @@ namespace CPQ
             fileName = Path.GetFileNameWithoutExtension(filePath);
 
             return Path.GetExtension(filePath) == Constants.CPL_EXTENSION;
+        }
+
+        private static void DeleteOutputFile()
+        {
+            File.Delete(Path.Combine(directory, fileName + Constants.QUAD_EXTENSION));
         }
     }
 }

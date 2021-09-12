@@ -1,5 +1,4 @@
 i,j:int;
-i:int;
 a, b : float;
 {
 if (!(a > 5) || !(b < 10))
