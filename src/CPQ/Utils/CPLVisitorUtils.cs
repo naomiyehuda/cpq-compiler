@@ -25,6 +25,7 @@ namespace CPQ
 
             IType type = GetType(varType);
             symbols.Add(varName, type);
+
             return true;
         }
 
@@ -62,12 +63,12 @@ namespace CPQ
 
         private void AddVarToSymbolTbl(IdlistContext context)
         {
-            var var = context.ID().GetText();
+            var varName = context.ID().GetText();
 
-            var isSucceedToAdd = AddVarToSymTbl(var, type);
+            var isSucceedToAdd = AddVarToSymTbl(varName, type);
             if (!isSucceedToAdd)
             {
-                semanticErrorHandler.EmitSemanticError(context.Start.Line, string.Format("Variable '{0}' already declared", var));
+                semanticErrorHandler.EmitSemanticError(context.Start.Line, string.Format("Variable '{0}' already declared", varName));
             }
         }
 
@@ -263,7 +264,7 @@ namespace CPQ
 
         private IType GetType(string type)
         {
-            if (string.Compare(type, Constants.INT_TYPE) == 0)
+            if (string.Compare(type.ToLower(), Constants.INT_TYPE) == 0)
                 return intType;
 
             return floatType;

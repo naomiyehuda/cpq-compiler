@@ -1,5 +1,4 @@
-﻿using Antlr4.Runtime.Misc;
-using System;
+﻿using System;
 using System.IO;
 using static CPQ.CPLParser;
 
@@ -21,6 +20,7 @@ namespace CPQ
 
         public override object VisitProgram(ProgramContext context)
         {
+            // Start traversing AST tree
             base.VisitProgram(context);
 
             if(!semanticErrorHandler.HasSemanticErrors)
