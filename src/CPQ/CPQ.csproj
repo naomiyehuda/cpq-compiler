@@ -1,9 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Antlr4 Remove="Antlr\Generated  Files\**" />
+    <Compile Remove="Antlr\Generated  Files\**" />
+    <EmbeddedResource Remove="Antlr\Generated  Files\**" />
+    <None Remove="Antlr\Generated  Files\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <Compile Remove="Antlr\CPLLexer.cs" />
