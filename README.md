@@ -14,7 +14,7 @@ The program will create a `.qud` output file in the same directory.
 
 ### Requirements
 
-The only requirement for building the project is to have [Visual Srudio 2019](https://visualstudio.microsoft.com/vs/community/). (for avoiding an heavy installation, check C# only)
+The only requirement for building the project is to have [Visual Srudio 2019](https://visualstudio.microsoft.com/vs/community/). (for avoidance of full installation, check C# only)
 
 ## Folders in this directory
 <pre>
