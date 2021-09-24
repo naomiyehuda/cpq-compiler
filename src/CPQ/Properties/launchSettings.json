@@ -2,7 +2,7 @@
   "profiles": {
     "CPQ": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\Users\\neomi.yehuda\\Msc\\Compilers\\CPQ\\tests\\err1.ou"
+      "commandLineArgs": "C:\\Users\\neomi.yehuda\\Msc\\Compilers\\CPQ\\tests\\test.ou"
     }
   }
 }

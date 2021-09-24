@@ -143,6 +143,8 @@ namespace CPQ
 
         public override object VisitExpression(ExpressionContext context)
         {
+            // For full explanation of expressions handling see here https://docs.google.com/document/d/1ztou5S87E3qKKMlAbFuv7m3ow-E-c4Lw7q8khP37Fxk/edit#heading=h.1ta746ejsxmw
+
             base.VisitExpression(context);
 
             if (context.ADDOP() != null)
@@ -155,6 +157,8 @@ namespace CPQ
 
         public override object VisitTerm(TermContext context)
         {
+            // For full explanation of expressions handling see here https://docs.google.com/document/d/1ztou5S87E3qKKMlAbFuv7m3ow-E-c4Lw7q8khP37Fxk/edit#heading=h.1ta746ejsxmw
+
             base.VisitTerm(context);
 
             if (context.MULOP() != null)
@@ -167,6 +171,8 @@ namespace CPQ
 
         public override object VisitFactor(FactorContext context)
         {
+            // For full explanation of expressions handling see here https://docs.google.com/document/d/1ztou5S87E3qKKMlAbFuv7m3ow-E-c4Lw7q8khP37Fxk/edit#heading=h.1ta746ejsxmw
+
             base.VisitFactor(context);
 
             if (context.ID() != null)

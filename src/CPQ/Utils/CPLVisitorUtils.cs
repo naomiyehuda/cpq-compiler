@@ -108,6 +108,8 @@ namespace CPQ
 
         private void HandleAssignment(Assignment_stmtContext context)
         {
+            // For full explanation of assignment handling see here https://docs.google.com/document/d/1ztou5S87E3qKKMlAbFuv7m3ow-E-c4Lw7q8khP37Fxk/edit#heading=h.giiki5f7q1ma
+
             var left = context.ID().GetText();
             if (!TryGetVariable(left, out IType leftType))
             {
@@ -119,6 +121,13 @@ namespace CPQ
                 if (leftType.GetType() == typeof(IntType) && right.Value.GetType() == typeof(FloatType))
                 {
                     semanticErrorHandler.EmitSemanticError(context.Start.Line, "Cannot implicitly convert 'float' to 'int'");
+                }
+                else if (leftType.GetType() == typeof(FloatType) && right.Value.GetType() == typeof(IntType))
+                {
+                    // Create ITOR command
+                    var tmpVar = GetTmpVar();
+                    AddCodeLine(intType.EmitCAST(tmpVar, right.Key));
+                    AddCodeLine(leftType.EmitASN(left, tmpVar));
                 }
                 else
                 {
@@ -159,14 +168,8 @@ namespace CPQ
             var tmpVar = GetTmpVar();
             AddCodeLine(expression.Value.EmitCAST(tmpVar, expression.Key));
 
-            if (expression.Value.GetType() == typeof(FloatType))
-            {
-                expressions.Push(new KeyValuePair<string, IType>(tmpVar, intType));
-            }
-            else
-            {
-                expressions.Push(new KeyValuePair<string, IType>(tmpVar, floatType));
-            }
+            // Add temp var with type as the expression's type
+            expressions.Push(new KeyValuePair<string, IType>(tmpVar, expression.Value));
         }
 
         private void HandleMULOP(TermContext context)
@@ -277,6 +280,12 @@ namespace CPQ
 
         private IType GetType(KeyValuePair<string, IType> right, KeyValuePair<string, IType> left)
         {
+            /*
+             * f op i = f
+             * i op f = f
+             * f op f = f
+             * i op i = i
+             */
             return right.Value.GetType() == typeof(FloatType) ? right.Value : left.Value;
         }
 
