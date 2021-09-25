@@ -217,6 +217,8 @@ namespace CPQ
 
         public override object VisitBoolfactor(BoolfactorContext context)
         {
+            // For full explanation of boolian expressions handling see here https://docs.google.com/document/d/1ztou5S87E3qKKMlAbFuv7m3ow-E-c4Lw7q8khP37Fxk/edit#heading=h.geh772q1xjsl
+
             if (context.NOT() != null)
             {
                 // Toggle notFlag
@@ -230,6 +232,8 @@ namespace CPQ
                 HandleRELOP(context.RELOP().GetText());
             }
 
+            // notFlag will be toggled just after handling boolFactor was completed.
+            // e.g.: !(a > 2 && b < 5)
             if (context.NOT() != null)
             {
                 // Toggle notFlag

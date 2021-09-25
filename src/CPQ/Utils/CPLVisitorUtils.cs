@@ -237,6 +237,8 @@ namespace CPQ
 
         private void HandleBoolterm(string op)
         {
+            // For full explanation of boolian expressions handling see here https://docs.google.com/document/d/1ztou5S87E3qKKMlAbFuv7m3ow-E-c4Lw7q8khP37Fxk/edit#heading=h.geh772q1xjsl
+
             var right = expressions.Pop();
             var left = expressions.Pop();
 
