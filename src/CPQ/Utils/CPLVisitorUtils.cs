@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using static CPQ.CPLParser;
@@ -289,6 +290,47 @@ namespace CPQ
              * i op i = i
              */
             return right.Value.GetType() == typeof(FloatType) ? right.Value : left.Value;
+        }
+
+        private void HandleJMPZ(If_stmtContext context)
+        {
+            // Save relevant parameters for JUMPZ command
+            int whereToAddJumpzCmdIdx = quadCode.Length;
+            int jumpzLineNo = lineNo;
+            string argument = expressions.Pop().Key;
+
+            // Increase lineNo for the next command
+            lineNo++;
+
+            // Translating true block
+            var trueBlock = context.stmt()[0];
+            VisitStmt(trueBlock);
+
+            // Insert JUMPZ command before after translating true block
+            var jmpzCommand = QuadTokens.JMPZ + " " + (lineNo + 1) + " " + argument + Environment.NewLine;
+            var jmpzWithLineNo = jumpzLineNo + " " + jmpzCommand;
+            quadCode.Insert(whereToAddJumpzCmdIdx, jmpzWithLineNo);
+
+        }
+
+        private void HandleJUMP(If_stmtContext context)
+        {
+            // Save relevant parameters for JUMP command
+            int jumpLineNo = lineNo;
+            int whereToAddJumpCmdIdx = quadCode.Length;
+
+            // Increase lineNo for the next command
+            lineNo++;
+
+            // Translating else block
+            var elseBlock = context.stmt()[1];
+            VisitStmt(elseBlock);
+
+            // Insert JUMP command after translating else block
+            var jumpCommand = QuadTokens.JUMP + " " + lineNo + Environment.NewLine;
+            var jumpWithLineNo = jumpLineNo + " " + jumpCommand;
+            quadCode.Insert(whereToAddJumpCmdIdx, jumpWithLineNo);
+
         }
 
         private void AddCodeLine(string code)

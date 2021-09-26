@@ -73,6 +73,21 @@ namespace CPQ
 
         public override object VisitIf_stmt(If_stmtContext context)
         {
+            // For full explanation of expressions handling see here https://docs.google.com/document/d/1ztou5S87E3qKKMlAbFuv7m3ow-E-c4Lw7q8khP37Fxk/edit#heading=h.e8021sqmo5m9
+
+            VisitBoolexpr(context.boolexpr());
+
+            HandleJMPZ(context);
+
+            HandleJUMP(context);
+
+            return null;
+        }
+
+        public override object VisitWhile_stmt(While_stmtContext context)
+        {
+            int jumpLineNo = lineNo;
+
             VisitBoolexpr(context.boolexpr());
 
             // Save relevant parameters for JUMPZ command
@@ -82,54 +97,18 @@ namespace CPQ
 
             lineNo++;
 
-            var trueBlock = context.stmt()[0];
-            VisitStmt(trueBlock);
-
-            // Insert JUMPZ command
-            var jmpzCommand = QuadTokens.JMPZ + " " + lineNo + " " + argument + Environment.NewLine;
-            var jmpzWithLineNo = jumpzLineNo + " " + jmpzCommand;
-            quadCode.Insert(currLineIdx, jmpzWithLineNo);
-
-            var elseBlock = context.stmt()[1];
-            VisitStmt(elseBlock);
-
-            return null;
-        }
-
-        public override object VisitWhile_stmt(While_stmtContext context)
-        {
-            int jumpLineNo = lineNo;
-            VisitBoolexpr(context.boolexpr());
-
-            // Save relevant parameters for JUMPZ and JUMP commands
-            int currLineIdx = quadCode.Length;
-            int jumpzLineNo = lineNo;
-            string argument = expressions.Pop().Key;
-
-            lineNo++;
-
             VisitStmt(context.stmt());
 
-            // It means one of the statements is BREAK statement
-            if (breakIdx > 0)
-            {
-                // Add JUMP command
-                var endOfWhileLine = lineNo;
-                var breakJump = breakLineNo + " " + QuadTokens.JUMP + " " + endOfWhileLine + Environment.NewLine;
-                quadCode.Insert(breakIdx, breakJump);
-            }
-            else
-            {
-                // Add JUMP command
-                var jumpCommand = lineNo++ + " " + QuadTokens.JUMP + " " + jumpLineNo;
-                quadCode.AppendLine(jumpCommand);
-            }
+            // Add JUMP command
+            var jumpCommand = lineNo++ + " " + QuadTokens.JUMP + " " + jumpLineNo;
+            quadCode.AppendLine(jumpCommand);
+
+            var endOfWhileLine = lineNo;
 
             // Insert JMPZ command
-            var jmpzCommand = QuadTokens.JMPZ + " " + lineNo + " " + argument + Environment.NewLine;
+            var jmpzCommand = QuadTokens.JMPZ + " " + endOfWhileLine + " " + argument + Environment.NewLine;
             var jmpzWithLineNo = jumpzLineNo + " " + jmpzCommand;
             quadCode.Insert(currLineIdx, jmpzWithLineNo);
-
 
             return null;
         }
@@ -138,6 +117,7 @@ namespace CPQ
         {
             breakIdx = quadCode.Length;
             breakLineNo = lineNo++;
+            
             return base.VisitBreak_stmt(context);
         }
 
