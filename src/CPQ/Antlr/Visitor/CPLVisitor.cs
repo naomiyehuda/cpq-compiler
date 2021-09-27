@@ -86,29 +86,27 @@ namespace CPQ
 
         public override object VisitWhile_stmt(While_stmtContext context)
         {
+            // For full explanation of expressions handling see here https://docs.google.com/document/d/1ztou5S87E3qKKMlAbFuv7m3ow-E-c4Lw7q8khP37Fxk/edit#heading=h.persefusho4b
             int jumpLineNo = lineNo;
 
             VisitBoolexpr(context.boolexpr());
 
-            // Save relevant parameters for JUMPZ command
-            int currLineIdx = quadCode.Length;
-            int jumpzLineNo = lineNo;
-            string argument = expressions.Pop().Key;
+            var arg = expressions.Pop().Key;
 
-            lineNo++;
+            // Add JMPZ command
+            AddCodeLine(QuadTokens.JMPZ + " " + arg);
 
+            // Save pointer where to add line no. Should also substract arg.len and 3 charachters: space, \r and \n
+            int whereToAddLineNoIdx = quadCode.Length - arg.Length - 3;
+
+            // Translate while body
             VisitStmt(context.stmt());
 
+            // Update JMPZ command with line no
+            quadCode.Insert(whereToAddLineNoIdx, " " + (lineNo + 1));
+
             // Add JUMP command
-            var jumpCommand = lineNo++ + " " + QuadTokens.JUMP + " " + jumpLineNo;
-            quadCode.AppendLine(jumpCommand);
-
-            var endOfWhileLine = lineNo;
-
-            // Insert JMPZ command
-            var jmpzCommand = QuadTokens.JMPZ + " " + endOfWhileLine + " " + argument + Environment.NewLine;
-            var jmpzWithLineNo = jumpzLineNo + " " + jmpzCommand;
-            quadCode.Insert(currLineIdx, jmpzWithLineNo);
+            AddCodeLine(QuadTokens.JUMP + " " + jumpLineNo);
 
             return null;
         }

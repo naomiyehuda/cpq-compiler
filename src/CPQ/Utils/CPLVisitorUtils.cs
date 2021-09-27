@@ -294,42 +294,36 @@ namespace CPQ
 
         private void HandleJMPZ(If_stmtContext context)
         {
-            // Save relevant parameters for JUMPZ command
-            int whereToAddJumpzCmdIdx = quadCode.Length;
-            int jumpzLineNo = lineNo;
-            string argument = expressions.Pop().Key;
+            var arg = expressions.Pop().Key;
 
-            // Increase lineNo for the next command
-            lineNo++;
+            // Add JMPZ command
+            AddCodeLine(QuadTokens.JMPZ + " " + arg);
+
+            // Save pointer where to add line no. Should also substract arg.len and 3 charachters: space, \r and \n
+            int whereToAddLineNoIdx = quadCode.Length - arg.Length - 3;
 
             // Translating true block
             var trueBlock = context.stmt()[0];
             VisitStmt(trueBlock);
 
-            // Insert JUMPZ command before after translating true block
-            var jmpzCommand = QuadTokens.JMPZ + " " + (lineNo + 1) + " " + argument + Environment.NewLine;
-            var jmpzWithLineNo = jumpzLineNo + " " + jmpzCommand;
-            quadCode.Insert(whereToAddJumpzCmdIdx, jmpzWithLineNo);
-
+            // Update JMPZ command with line no
+            quadCode.Insert(whereToAddLineNoIdx, " " + (lineNo + 1));
         }
 
         private void HandleJUMP(If_stmtContext context)
         {
-            // Save relevant parameters for JUMP command
-            int jumpLineNo = lineNo;
-            int whereToAddJumpCmdIdx = quadCode.Length;
+            // Add JUMP command
+            AddCodeLine(QuadTokens.JUMP);
 
-            // Increase lineNo for the next command
-            lineNo++;
+            // Save pointer where to add line no. Should also substract \r and \n
+            int whereToAddLineNoIdx = quadCode.Length - 2;
 
             // Translating else block
             var elseBlock = context.stmt()[1];
             VisitStmt(elseBlock);
 
-            // Insert JUMP command after translating else block
-            var jumpCommand = QuadTokens.JUMP + " " + lineNo + Environment.NewLine;
-            var jumpWithLineNo = jumpLineNo + " " + jumpCommand;
-            quadCode.Insert(whereToAddJumpCmdIdx, jumpWithLineNo);
+            // Update JUMP command with line no
+            quadCode.Insert(whereToAddLineNoIdx, " " + lineNo);
 
         }
 
