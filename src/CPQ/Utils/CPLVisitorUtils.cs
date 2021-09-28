@@ -1,22 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using static CPQ.CPLParser;
 
 namespace CPQ
 {
     internal partial class CPLVisitor
     {
-        private int lineNo = 1;
         private readonly string filePath;
         private Dictionary<string, IType> symbols = new Dictionary<string, IType>();
         private Dictionary<string, string> inversedRelOps = new Dictionary<string, string>();
         private SemanticErrorHandler semanticErrorHandler = new SemanticErrorHandler();
-        private StringBuilder quadCode = new StringBuilder();
+        private List<string> quadCode = new List<string>();
         private IType intType = new IntType();
         private IType floatType = new FloatType();
         private Stack<KeyValuePair<string, IType>> expressions = new Stack<KeyValuePair<string, IType>>();
+        private Stack<int> breakIndexes = new Stack<int>();
         private bool notFlag = false;
         private int tmpVarCounter = 0;
 
@@ -44,9 +42,11 @@ namespace CPQ
             AddCodeLine("*** Naomi Yehuda ***");
 
             string outputFilePath = filePath + Constants.QUAD_EXTENSION;
-            using (var outputStream = new StreamWriter(outputFilePath))
+            using var outputStream = new StreamWriter(outputFilePath);
+            for (int i = 0; i < quadCode.Count; i++)
             {
-                outputStream.Write(quadCode);
+                string line = quadCode[i];
+                outputStream.WriteLine((i + 1) + " " + line);
             }
         }
 
@@ -299,15 +299,15 @@ namespace CPQ
             // Add JMPZ command
             AddCodeLine(QuadTokens.JMPZ + " " + arg);
 
-            // Save pointer where to add line no. Should also substract arg.len and 3 charachters: space, \r and \n
-            int whereToAddLineNoIdx = quadCode.Length - arg.Length - 3;
+            // Save pointer where to add line no
+            int jumpCmdIdx = quadCode.Count - 1;
 
             // Translating true block
             var trueBlock = context.stmt()[0];
             VisitStmt(trueBlock);
 
-            // Update JMPZ command with line no
-            quadCode.Insert(whereToAddLineNoIdx, " " + (lineNo + 1));
+            // Update JMPZ command with line no. Adding 2 because we also take JUMP command in account
+            quadCode[jumpCmdIdx] = quadCode[jumpCmdIdx].Insert(QuadTokens.JMPZ.Length, " " + (quadCode.Count + 2));
         }
 
         private void HandleJUMP(If_stmtContext context)
@@ -315,21 +315,20 @@ namespace CPQ
             // Add JUMP command
             AddCodeLine(QuadTokens.JUMP);
 
-            // Save pointer where to add line no. Should also substract \r and \n
-            int whereToAddLineNoIdx = quadCode.Length - 2;
+            // Save pointer where to add line no
+            int jumpCmdIdx = quadCode.Count - 1;
 
             // Translating else block
             var elseBlock = context.stmt()[1];
             VisitStmt(elseBlock);
 
             // Update JUMP command with line no
-            quadCode.Insert(whereToAddLineNoIdx, " " + lineNo);
-
+            quadCode[jumpCmdIdx] = quadCode[jumpCmdIdx].Insert(QuadTokens.JUMP.Length, " " + (quadCode.Count + 1));
         }
 
         private void AddCodeLine(string code)
         {
-            quadCode.AppendLine(lineNo++ + " " + code);
+            quadCode.Add(code);
         }
     }
 }

@@ -7,8 +7,6 @@ namespace CPQ
     internal partial class CPLVisitor : CPLBaseVisitor<object>
     {
         private string type = null;
-        private int breakIdx;
-        private int breakLineNo;
 
         public CPLVisitor(string directory, string fileName)
         {
@@ -87,7 +85,7 @@ namespace CPQ
         public override object VisitWhile_stmt(While_stmtContext context)
         {
             // For full explanation of expressions handling see here https://docs.google.com/document/d/1ztou5S87E3qKKMlAbFuv7m3ow-E-c4Lw7q8khP37Fxk/edit#heading=h.persefusho4b
-            int jumpLineNo = lineNo;
+            int jumpLineNo = quadCode.Count + 1;
 
             VisitBoolexpr(context.boolexpr());
 
@@ -96,26 +94,38 @@ namespace CPQ
             // Add JMPZ command
             AddCodeLine(QuadTokens.JMPZ + " " + arg);
 
-            // Save pointer where to add line no. Should also substract arg.len and 3 charachters: space, \r and \n
-            int whereToAddLineNoIdx = quadCode.Length - arg.Length - 3;
+            // Save pointer where to add line no
+            int jmpzCmdIdx = quadCode.Count - 1;
 
             // Translate while body
             VisitStmt(context.stmt());
 
-            // Update JMPZ command with line no
-            quadCode.Insert(whereToAddLineNoIdx, " " + (lineNo + 1));
-
             // Add JUMP command
             AddCodeLine(QuadTokens.JUMP + " " + jumpLineNo);
+
+            // Update JMPZ command with line no
+            quadCode[jmpzCmdIdx] = quadCode[jmpzCmdIdx].Insert(QuadTokens.JMPZ.Length, " " + (quadCode.Count + 1));
+
+            // Handle break
+            while (breakIndexes.Count > 0)
+            {
+                var index = breakIndexes.Pop();
+
+                // Update JUMP command with line no
+                quadCode[index] = quadCode[index].Insert(QuadTokens.JUMP.Length, " " + (quadCode.Count + 1));
+            }
 
             return null;
         }
 
         public override object VisitBreak_stmt(Break_stmtContext context)
         {
-            breakIdx = quadCode.Length;
-            breakLineNo = lineNo++;
-            
+            // Add JUMP command
+            AddCodeLine(QuadTokens.JUMP);
+
+            // Save pointer where to add line no.
+            breakIndexes.Push(quadCode.Count - 1);
+
             return base.VisitBreak_stmt(context);
         }
 
