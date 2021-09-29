@@ -300,14 +300,14 @@ namespace CPQ
             AddCodeLine(QuadTokens.JMPZ + " " + arg);
 
             // Save pointer where to add line no
-            int jumpCmdIdx = quadCode.Count - 1;
+            int jumpCmdIdx = GetCurrentLineIndex();
 
             // Translating true block
             var trueBlock = context.stmt()[0];
             VisitStmt(trueBlock);
 
-            // Update JMPZ command with line no. Adding 2 because we also take JUMP command in account
-            quadCode[jumpCmdIdx] = quadCode[jumpCmdIdx].Insert(QuadTokens.JMPZ.Length, " " + (quadCode.Count + 2));
+            // Update JMPZ command with line no. Adding 1 because we also take JUMP command in account
+            quadCode[jumpCmdIdx] = quadCode[jumpCmdIdx].Insert(QuadTokens.JMPZ.Length, " " + (GetNextLineNo() + 1));
         }
 
         private void HandleJUMP(If_stmtContext context)
@@ -316,19 +316,40 @@ namespace CPQ
             AddCodeLine(QuadTokens.JUMP);
 
             // Save pointer where to add line no
-            int jumpCmdIdx = quadCode.Count - 1;
+            int jumpCmdIdx = GetCurrentLineIndex();
 
             // Translating else block
             var elseBlock = context.stmt()[1];
             VisitStmt(elseBlock);
 
             // Update JUMP command with line no
-            quadCode[jumpCmdIdx] = quadCode[jumpCmdIdx].Insert(QuadTokens.JUMP.Length, " " + (quadCode.Count + 1));
+            quadCode[jumpCmdIdx] = quadCode[jumpCmdIdx].Insert(QuadTokens.JUMP.Length, " " + GetNextLineNo());
+        }
+
+        private void HandleBREAK()
+        {
+            while (breakIndexes.Count > 0)
+            {
+                var index = breakIndexes.Pop();
+
+                // Update JUMP command with line no
+                quadCode[index] = quadCode[index].Insert(QuadTokens.JUMP.Length, " " + GetNextLineNo());
+            }
         }
 
         private void AddCodeLine(string code)
         {
             quadCode.Add(code);
+        }
+
+        private int GetCurrentLineIndex()
+        {
+            return quadCode.Count - 1;
+        }
+
+        private int GetNextLineNo()
+        {
+            return quadCode.Count + 1;
         }
     }
 }

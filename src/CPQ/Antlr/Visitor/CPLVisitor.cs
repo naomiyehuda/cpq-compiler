@@ -85,7 +85,8 @@ namespace CPQ
         public override object VisitWhile_stmt(While_stmtContext context)
         {
             // For full explanation of expressions handling see here https://docs.google.com/document/d/1ztou5S87E3qKKMlAbFuv7m3ow-E-c4Lw7q8khP37Fxk/edit#heading=h.persefusho4b
-            int jumpLineNo = quadCode.Count + 1;
+
+            int jumpLineNo = GetNextLineNo();
 
             VisitBoolexpr(context.boolexpr());
 
@@ -95,7 +96,7 @@ namespace CPQ
             AddCodeLine(QuadTokens.JMPZ + " " + arg);
 
             // Save pointer where to add line no
-            int jmpzCmdIdx = quadCode.Count - 1;
+            int jmpzCmdIdx = GetCurrentLineIndex();
 
             // Translate while body
             VisitStmt(context.stmt());
@@ -104,16 +105,9 @@ namespace CPQ
             AddCodeLine(QuadTokens.JUMP + " " + jumpLineNo);
 
             // Update JMPZ command with line no
-            quadCode[jmpzCmdIdx] = quadCode[jmpzCmdIdx].Insert(QuadTokens.JMPZ.Length, " " + (quadCode.Count + 1));
+            quadCode[jmpzCmdIdx] = quadCode[jmpzCmdIdx].Insert(QuadTokens.JMPZ.Length, " " + GetNextLineNo());
 
-            // Handle break
-            while (breakIndexes.Count > 0)
-            {
-                var index = breakIndexes.Pop();
-
-                // Update JUMP command with line no
-                quadCode[index] = quadCode[index].Insert(QuadTokens.JUMP.Length, " " + (quadCode.Count + 1));
-            }
+            HandleBREAK();
 
             return null;
         }
@@ -124,7 +118,7 @@ namespace CPQ
             AddCodeLine(QuadTokens.JUMP);
 
             // Save pointer where to add line no.
-            breakIndexes.Push(quadCode.Count - 1);
+            breakIndexes.Push(GetCurrentLineIndex());
 
             return base.VisitBreak_stmt(context);
         }
