@@ -14,7 +14,8 @@ namespace CPQ
         private IType intType = new IntType();
         private IType floatType = new FloatType();
         private Stack<KeyValuePair<string, IType>> expressions = new Stack<KeyValuePair<string, IType>>();
-        private Stack<int> breakIndexes = new Stack<int>();
+        private Stack<int> breakWhileIndexes = new Stack<int>();
+        private Stack<int> breakSwitchIndexes = new Stack<int>();
         private bool notFlag = false;
         private int tmpVarCounter = 0;
 
@@ -328,13 +329,36 @@ namespace CPQ
 
         private void HandleBREAK()
         {
-            while (breakIndexes.Count > 0)
+            while (breakWhileIndexes.Count > 0)
             {
-                var index = breakIndexes.Pop();
+                var index = breakWhileIndexes.Pop();
 
                 // Update JUMP command with line no
                 quadCode[index] = quadCode[index].Insert(QuadTokens.JUMP.Length, " " + GetNextLineNo());
             }
+        }
+
+        private bool IsValidContext(Antlr4.Runtime.RuleContext context, out bool isWhileContext)
+        {
+            isWhileContext = false;
+
+            while (context != null)
+            {
+                if (context.GetType() == typeof(While_stmtContext))
+                {
+                    isWhileContext = true;
+                    return true;
+                }
+
+                if (context.GetType() == typeof(CaselistContext) || context.GetType() == typeof(Switch_stmtContext))
+                {
+                    return true;
+                }
+
+                context = context.Parent;
+            }
+
+            return false;
         }
 
         private void AddCodeLine(string code)

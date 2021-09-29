@@ -117,8 +117,24 @@ namespace CPQ
             // Add JUMP command
             AddCodeLine(QuadTokens.JUMP);
 
-            // Save pointer where to add line no.
-            breakIndexes.Push(GetCurrentLineIndex());
+            bool isValidContext = IsValidContext(context, out bool isWhileContext);
+
+            if(!isValidContext)
+            {
+                semanticErrorHandler.EmitSemanticError(context.Start.Line, "Break statement can appear only in Switch\\While statement");
+                return null;
+            }
+
+            if(isWhileContext)
+            {
+                // Save pointer where to add line no in while stack
+                breakWhileIndexes.Push(GetCurrentLineIndex());
+            }
+            else
+            {
+                // Save pointer where to add line no in switch stack
+                breakSwitchIndexes.Push(GetCurrentLineIndex());
+            }
 
             return base.VisitBreak_stmt(context);
         }

@@ -1,0 +1,28 @@
+a : float;
+b, A : int;
+{
+output(1);
+ while(a > 0)
+ {
+ output(2);
+ while(b > 3)
+ {
+ if(a > 2)
+ {
+ output(11111);
+ break;
+ }
+ else
+ {
+ output(22222);
+  break;
+ a = a-1;
+ }
+ }
+ output(3333);
+ break;
+ 
+ }
+ 
+ output(4);
+}
