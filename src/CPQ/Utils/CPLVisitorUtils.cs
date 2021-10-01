@@ -327,11 +327,22 @@ namespace CPQ
             quadCode[jumpCmdIdx] = quadCode[jumpCmdIdx].Insert(QuadTokens.JUMP.Length, " " + GetNextLineNo());
         }
 
-        private void HandleBREAK()
+        private void HandleWhileBREAK()
         {
             while (breakWhileIndexes.Count > 0)
             {
                 var index = breakWhileIndexes.Pop();
+
+                // Update JUMP command with line no
+                quadCode[index] = quadCode[index].Insert(QuadTokens.JUMP.Length, " " + GetNextLineNo());
+            }
+        }
+
+        private void HandleSwitchBREAK()
+        {
+            while (breakSwitchIndexes.Count > 0)
+            {
+                var index = breakSwitchIndexes.Pop();
 
                 // Update JUMP command with line no
                 quadCode[index] = quadCode[index].Insert(QuadTokens.JUMP.Length, " " + GetNextLineNo());

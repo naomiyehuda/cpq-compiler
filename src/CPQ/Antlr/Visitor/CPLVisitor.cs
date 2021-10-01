@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Antlr4.Runtime.Misc;
+using System;
 using System.IO;
 using static CPQ.CPLParser;
 
@@ -7,6 +8,7 @@ namespace CPQ
     internal partial class CPLVisitor : CPLBaseVisitor<object>
     {
         private string type = null;
+        string arg = null;
 
         public CPLVisitor(string directory, string fileName)
         {
@@ -107,13 +109,65 @@ namespace CPQ
             // Update JMPZ command with line no
             quadCode[jmpzCmdIdx] = quadCode[jmpzCmdIdx].Insert(QuadTokens.JMPZ.Length, " " + GetNextLineNo());
 
-            HandleBREAK();
+            HandleWhileBREAK();
+
+            return null;
+        }
+
+        public override object VisitSwitch_stmt(Switch_stmtContext context)
+        {
+            // Translate expression
+            VisitExpression(context.expression());
+
+            arg = expressions.Pop().Key;
+
+            // Translate caselist
+            VisitCaselist(context.caselist());
+
+            // Translate DEFAULT stmtlist
+            VisitStmtlist(context.stmtlist());
+
+            HandleSwitchBREAK();
+
+            return null;
+        }
+
+        public override object VisitCaselist(CaselistContext context)
+        {
+            if (context != null)
+            {
+                VisitCaselist(context.caselist());
+
+                if (context.NUM() != null)
+                {
+                    // Add IEQL command
+                    var num = context.NUM().GetText();
+
+                    var tmpVar = GetTmpVar();
+
+                    AddCodeLine(intType.EmitEQL(tmpVar, arg, num));
+
+                    // Add JMPZ command
+                    AddCodeLine(QuadTokens.JMPZ + " " + tmpVar);
+
+                    // Save pointer where to add line no
+                    int jmpzCmdIdx = GetCurrentLineIndex();
+
+                    // Translate stmtlist
+                    VisitStmtlist(context.stmtlist());
+
+                    // Update JMPZ command with line no
+                    quadCode[jmpzCmdIdx] = quadCode[jmpzCmdIdx].Insert(QuadTokens.JMPZ.Length, " " + GetNextLineNo());
+                }
+            }
 
             return null;
         }
 
         public override object VisitBreak_stmt(Break_stmtContext context)
         {
+            // For full explanation of expressions handling see here https://docs.google.com/document/d/1ztou5S87E3qKKMlAbFuv7m3ow-E-c4Lw7q8khP37Fxk/edit#heading=h.me0l0oh2n0he
+
             // Add JUMP command
             AddCodeLine(QuadTokens.JUMP);
 
