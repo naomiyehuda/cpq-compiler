@@ -1,5 +1,4 @@
-﻿using Antlr4.Runtime.Misc;
-using System;
+﻿using System;
 using System.IO;
 using static CPQ.CPLParser;
 
@@ -9,6 +8,8 @@ namespace CPQ
     {
         private string type = null;
         string arg = null;
+        int whileContextCounter = 0;
+        int switchContextCounter = 0;
 
         public CPLVisitor(string directory, string fileName)
         {
@@ -88,6 +89,8 @@ namespace CPQ
         {
             // For full explanation of expressions handling see here https://docs.google.com/document/d/1ztou5S87E3qKKMlAbFuv7m3ow-E-c4Lw7q8khP37Fxk/edit#heading=h.persefusho4b
 
+            whileContextCounter++;
+
             int jumpLineNo = GetNextLineNo();
 
             VisitBoolexpr(context.boolexpr());
@@ -111,11 +114,15 @@ namespace CPQ
 
             HandleWhileBREAK();
 
+            whileContextCounter--;
+
             return null;
         }
 
         public override object VisitSwitch_stmt(Switch_stmtContext context)
         {
+            switchContextCounter++;
+
             // Translate expression
             VisitExpression(context.expression());
 
@@ -128,6 +135,8 @@ namespace CPQ
             VisitStmtlist(context.stmtlist());
 
             HandleSwitchBREAK();
+
+            switchContextCounter--;
 
             return null;
         }
@@ -182,12 +191,16 @@ namespace CPQ
             if(isWhileContext)
             {
                 // Save pointer where to add line no in while stack
-                breakWhileIndexes.Push(GetCurrentLineIndex());
+                breakWhileIndexes.Push(new Tuple<int, int>(
+                    whileContextCounter,
+                    GetCurrentLineIndex()));
             }
             else
             {
                 // Save pointer where to add line no in switch stack
-                breakSwitchIndexes.Push(GetCurrentLineIndex());
+                breakSwitchIndexes.Push(new Tuple<int, int>(
+                    switchContextCounter,
+                    GetCurrentLineIndex()));
             }
 
             return base.VisitBreak_stmt(context);

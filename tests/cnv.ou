@@ -1,34 +1,25 @@
-main  cnv /* test implicit/explicit type conversions */   
-
-var  i, j: int;
-     a, b: real;
-
-start
-   read (a);
-   read (i);
+i, j: int;
+a, b: float;
+{
+   input (a);
+   input (i);
    
    
-   if (a >= i) then {
+   if (a >= i) {
  
-       b := a - i;
-       print (b);
+       b = a - i;
+       output (b);
    }
    else {
-       print (i * a);
+       output (i * a);
    }
+  
+   i = 3 + 5;
+   output (i);
    
-   i := ival (3.0 + 5.8);
-   print (i);
+   a = 3 + 5;
+   output (a);
    
-   i := ival (3 + 5); /* this is legal - may elicit a warning */
-   print (i);
-   
-   a := rval (3 + 5);
-   print (a);
-   
-   a := rval (3.0 + 5.0); /* this is legal- may elicit a warning */
-   print (a);
-   
-   /* i := rval (17);  this is an error: cannot assign real value to int variable */ 
-
-trats
+   a = 3.0 + 5.0;
+   output (a);
+}

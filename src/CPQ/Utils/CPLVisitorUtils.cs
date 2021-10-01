@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using static CPQ.CPLParser;
 
 namespace CPQ
@@ -14,8 +16,8 @@ namespace CPQ
         private IType intType = new IntType();
         private IType floatType = new FloatType();
         private Stack<KeyValuePair<string, IType>> expressions = new Stack<KeyValuePair<string, IType>>();
-        private Stack<int> breakWhileIndexes = new Stack<int>();
-        private Stack<int> breakSwitchIndexes = new Stack<int>();
+        private Stack<Tuple<int, int>> breakWhileIndexes = new Stack<Tuple<int, int>>();
+        private Stack<Tuple<int, int>> breakSwitchIndexes = new Stack<Tuple<int, int>>();
         private bool notFlag = false;
         private int tmpVarCounter = 0;
 
@@ -329,9 +331,9 @@ namespace CPQ
 
         private void HandleWhileBREAK()
         {
-            while (breakWhileIndexes.Count > 0)
+            while (breakWhileIndexes.Count > 0 && breakWhileIndexes.Peek().Item1 == whileContextCounter)
             {
-                var index = breakWhileIndexes.Pop();
+                var index = breakWhileIndexes.Pop().Item2;
 
                 // Update JUMP command with line no
                 quadCode[index] = quadCode[index].Insert(QuadTokens.JUMP.Length, " " + GetNextLineNo());
@@ -340,9 +342,9 @@ namespace CPQ
 
         private void HandleSwitchBREAK()
         {
-            while (breakSwitchIndexes.Count > 0)
+            while (breakSwitchIndexes.Count > 0 && breakSwitchIndexes.Peek().Item1 == switchContextCounter)
             {
-                var index = breakSwitchIndexes.Pop();
+                var index = breakSwitchIndexes.Pop().Item2;
 
                 // Update JUMP command with line no
                 quadCode[index] = quadCode[index].Insert(QuadTokens.JUMP.Length, " " + GetNextLineNo());

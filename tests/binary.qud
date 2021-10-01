@@ -1,0 +1,35 @@
+1 IASN b 0
+2 IEQL t_0 b 0
+3 JMPZ 15 t_0
+4 IINP a
+5 IGRT t_1 a 0
+6 ILSS t_2 a 1000
+7 IEQL t_3 a 1000
+8 IADD t_2 t_3 t_2
+9 IADD t_4 t_1 t_2
+10 IGRT t_5 t_4 1
+11 JMPZ 14 t_5
+12 IASN b 1
+13 JUMP 14
+14 JUMP 2
+15 ITOR t_6 1
+16 RASN ten t_6
+17 IASN b 0
+18 IGRT t_7 a 0
+19 JMPZ 33 t_7
+20 IDIV t_8 a 2
+21 IMLT t_9 t_8 2
+22 ISUB t_10 a t_9
+23 ITOR t_11 t_10
+24 RASN temp t_11
+25 RMLT t_12 temp ten
+26 RADD t_13 b t_12
+27 RASN temp t_13
+28 RMLT t_14 ten 10
+29 RASN ten t_14
+30 IDIV t_15 a 2
+31 IASN a t_15
+32 JUMP 18
+33 IPRT b
+34 HALT
+35 *** Naomi Yehuda ***

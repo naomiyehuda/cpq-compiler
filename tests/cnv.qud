@@ -1,0 +1,24 @@
+1 RINP a
+2 IINP i
+3 RGRT t_0 a i
+4 REQL t_1 a i
+5 RADD t_0 t_1 t_0
+6 JMPZ 11 t_0
+7 RSUB t_2 a i
+8 RASN b t_2
+9 RPRT b
+10 JUMP 13
+11 RMLT t_3 i a
+12 RPRT t_3
+13 IADD t_4 3 5
+14 IASN i t_4
+15 IPRT i
+16 IADD t_5 3 5
+17 ITOR t_6 t_5
+18 RASN a t_6
+19 RPRT a
+20 RADD t_7 3.0 5.0
+21 RASN a t_7
+22 RPRT a
+23 HALT
+24 *** Naomi Yehuda ***

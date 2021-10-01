@@ -1,0 +1,45 @@
+B : float;
+a : int;
+b, A : int;
+{
+switch (a + 1)
+{
+case 1:
+case 2:
+output(12);
+break;
+case 3:
+output(3);
+
+switch (a * 5 + 2)
+{
+case 11:
+while(B > 0)
+{
+output(11);
+B = B - 1;
+}
+output(B);
+break;
+
+case 12:
+output(12);
+break;
+
+default:
+output(10);
+break;
+}
+
+
+break;
+case 4:
+output(4);
+case 5:
+output(5);
+break;
+default:
+output(0);
+break;
+}
+}
