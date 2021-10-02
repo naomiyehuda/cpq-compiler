@@ -121,12 +121,21 @@ namespace CPQ
 
         public override object VisitSwitch_stmt(Switch_stmtContext context)
         {
+            // For full explanation of expressions handling see here https://docs.google.com/document/d/1ztou5S87E3qKKMlAbFuv7m3ow-E-c4Lw7q8khP37Fxk/edit#heading=h.gi979o709n06
             switchContextCounter++;
 
             // Translate expression
             VisitExpression(context.expression());
 
-            arg = expressions.Pop().Key;
+            var element = expressions.Pop();
+            var type = element.Value;
+            if(type.GetType() == typeof(FloatType))
+            {
+                semanticErrorHandler.EmitSemanticError(context.Start.Line, "Expression in Switch statement cannot be of 'float' type");
+                return null;
+            }
+
+            arg = element.Key;
 
             // Translate caselist
             VisitCaselist(context.caselist());
